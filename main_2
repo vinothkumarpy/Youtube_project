@@ -1,0 +1,220 @@
+from googleapiclient.discovery import build
+import pandas as pd
+
+#USE ABI KEY AND CHANNEL ID TO ACCESS THE SERVICE
+api_key="AIzaSyAQX-_rQ1RGiIH_Akbh1zT7FJaHaorSqm8"
+channel_id=["UCvyZS6W6zMJCZBVzF-Ei6sw"]
+
+#ACCESS THE SERVICE
+youtube=build('youtube','v3',developerKey=api_key)
+
+#GETTING CHANNEL DETAILS
+def get_channel_details(youtube, channel_id):
+    request = youtube.channels().list(
+        part="snippet,statistics,contentDetails",
+        id=channel_id
+    )
+    
+    response = request.execute()
+
+    return response
+
+
+get_channel_details(youtube, channel_id)
+
+#USE CHANNEL DETAILS AND GET THE NEEDED DATA
+def get_channel_details(youtube, channel_id):
+    request = youtube.channels().list(
+        part="snippet,statistics,contentDetails",
+        id=channel_id
+    )
+    
+    response = request.execute()
+    
+    all_data = []
+    
+    for item in response['items']:
+        data = {
+            'channel_name': item['snippet']['title'],
+            'channel_video_count': item['statistics']['videoCount'],
+            'channel_subscriber_count': item['statistics']['subscriberCount'],
+            'channel_view_count': item['statistics']['viewCount'],
+            'channel_description': item['snippet']['description'],
+            'channel_playlist_id': item['contentDetails']['relatedPlaylists']['uploads']
+        }
+        all_data.append(data)
+    
+    return all_data
+
+data = get_channel_details(youtube, channel_id)
+print(data)
+
+#CONVERT INTO DATAFRAME
+channel=pd.DataFrame(data)
+print(channel)
+
+#GET PLAYLIST ID
+playlist_id=channel.loc[channel['channel_name']=='A2D Channel', 'playlist_id'].iloc[0]
+print(playlist_id)
+
+
+#GET VIDEODETAILS
+
+def get_video_ids(youtube,playlist_id):
+
+    request=youtube.playlistItems().list(
+           part='contentDetails',
+           playlistId=playlist_id,
+          maxResults=50)
+    response=request.execute()
+
+    video_ids=[]
+
+    for i in range(len(response['items'])):
+        video_ids.append(response['items'][i]['contentDetails']['videoId'])
+
+    next_page_token=response.get('nextPageToken')
+    more_pages=True
+
+    while more_pages:
+       if next_page_token is None:
+           more_pages=False
+       else:
+           request=youtube.playlistItems().list(
+               part='contentDetails',
+               playlistId=playlist_id,
+               maxResults=50,
+               pageToken=next_page_token)
+           response=request.execute()
+
+           for i in range(len(response['items'])):
+               video_ids.append(response['items'][i]['contentDetails']['videoId'])
+
+           next_page_token=response.get('nextPageToken')
+
+    return  video_ids
+
+video_id=get_video_ids(youtube,playlist_id)
+print(video_id)
+
+
+def get_video_details(youtube,video_ids):
+
+  all_video_stats=[]
+  for i in range(0,len(video_ids),50):
+    request = youtube.videos().list(
+        part="snippet,statistics",
+        id=','.join(video_ids[i:i+50]))
+
+    response = request.execute()
+
+    for video in response['items']:
+      video_stats=dict(
+        video_id = video['id'],
+            video_name = video['snippet']['title'],
+            video_description = video['snippet']['description'],
+            published_at = video['snippet']['publishedAt'],
+            view_count = video['statistics']['viewCount'],
+            like_count = video['statistics'].get('likeCount', 0),
+            dislike_count = video['statistics'].get('dislikeCount', 0),
+            favorite_count = video['statistics'].get('favoriteCount', 0),
+            comment_count = video['statistics'].get('commentCount', 0),
+            duration = video.get('contentDetails', {}).get('duration', 'Not Available'),
+            thumbnail = video['snippet']['thumbnails']['high']['url'],
+            caption_status = video.get('contentDetails', {}).get('caption', 'Not Available'),
+            comments = 'Unavailable')
+      all_video_stats.append(video_stats)
+
+
+
+  return all_video_stats
+
+video_details=get_video_details(youtube,video_id)
+
+#CONVERT INTO DATAFRAME
+video_data_youtupe=pd.DataFrame(video_details)
+print(video_data_youtupe)
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+#STORE THE DATA INTO MANGODB ATLES
+import pymongo as py
+import pandas as pd
+vinoth=py.MongoClient("mongodb://vinothkumar:guvi8799@ac-lvkvogs-shard-00-00.1kotbix.mongodb.net:27017,ac-lvkvogs-shard-00-01.1kotbix.mongodb.net:27017,ac-lvkvogs-shard-00-02.1kotbix.mongodb.net:27017/?ssl=true&replicaSet=atlas-10yzyw-shard-0&authSource=admin&retryWrites=true&w=majority")
+db=vinoth['YOUTUBE_DATA']
+col=db['CHANNEL_AND_VIDEOS_DETAILS']
+
+col.insert_many(data)
+
+for video_detail in video_details:
+    col.insert_one(video_detail)
+
+collection = db.CHANNEL_AND_VIDEOS_DETAILS
+
+res=collection.find()
+
+df=pd.DataFrame(res)   
+
+res=col.find()
+
+res
+
+for i in res:
+   z = i
+   print(z)
+
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+import mysql.connector
+import sqlalchemy
+from sqlalchemy import create_engine   
+
+connect = mysql.connector.connect(
+        host = "localhost",
+        user = "root",
+        password = "vino8799",
+        auth_plugin = "mysql_native_password")    
+
+
+        # Create a new database and use
+mycursor = connect.cursor()
+mycursor.execute("CREATE DATABASE IF NOT EXISTS youtube_project")
+
+
+
+
+        # Close the cursor and database connection
+mycursor.close()
+connect.close()
+
+        # Connect to the new created database
+engine = create_engine('mysql+mysqlconnector://root:vino8799@localhost/youtube_project', echo=False)
+
+
+channel.to_sql('channel', engine, if_exists='append', index=False,
+                        dtype = {"Channel_Name": sqlalchemy.types.VARCHAR(length=225),
+                                "Channel_Id": sqlalchemy.types.VARCHAR(length=225),
+                                "Video_Count": sqlalchemy.types.INT,
+                                "Subscriber_Count": sqlalchemy.types.BigInteger,
+                                "Channel_Views": sqlalchemy.types.BigInteger,
+                                "Channel_Description": sqlalchemy.types.TEXT,
+                                "Playlist_Id": sqlalchemy.types.VARCHAR(length=225),})
+
+
+video_data_youtupe.to_sql('video_details', engine , if_exists='append', index=False,
+                    dtype = {'Video_Id': sqlalchemy.types.VARCHAR(length=225),
+                            'Video_Name': sqlalchemy.types.VARCHAR(length=225),
+                            'Video_Description': sqlalchemy.types.TEXT,
+                            'Published_date': sqlalchemy.types.String(length=100),
+                            'View_Count': sqlalchemy.types.BigInteger,
+                            'Like_Count': sqlalchemy.types.BigInteger,
+                            'Dislike_Count': sqlalchemy.types.INT,
+                            'Favorite_Count': sqlalchemy.types.INT,
+                            'Comment_Count': sqlalchemy.types.INT,
+                            'Duration': sqlalchemy.types.VARCHAR(length=1024),
+                            'Thumbnail': sqlalchemy.types.VARCHAR(length=225),
+                            'Caption_Status': sqlalchemy.types.VARCHAR(length=225),
+                            'comments': sqlalchemy.types.VARCHAR(length=225)})
+
+
+
