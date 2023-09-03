@@ -1,0 +1,113 @@
+import streamlit as st
+import mysql.connector
+import pandas as pd
+
+st.title('MySQL Query and Data Display')
+
+connection = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='vino8799',
+    database='youtube_project'
+)
+cursor = connection.cursor()
+
+
+question_tosql = st.selectbox('**Select your Question**', (
+    '1. What are the names of all the videos and their channels?',
+    '2. Show the all videos and show the like count per video?',
+    '3. What are the top 10 most viewed videos in their channels?',
+    '4. How many comments were made on each video ?',
+    '5. Which videos have the highest number of comments ?',
+    '6. What is the total number of likes and dislikes for each video?',
+    '7. What is the total number of views for this channel ?',
+    '8. What are the names of all the channels that have published videos in the year 2022?',
+    '9. show the channel details ?',
+    '10.  show the All videos details ?'
+), key='collection_question')
+
+if question_tosql == '1. What are the names of all the videos and their channels?':
+    cursor.execute("SELECT video_id, Video_Name FROM video_details order by like_count;")
+    result_1 = cursor.fetchall()
+    df1 = pd.DataFrame(result_1, columns=['video_id', 'Video Name']).reset_index(drop=True)
+    df1.index += 1
+    st.dataframe(df1)
+
+elif question_tosql == '2. Show the all videos and show the like count per video?':
+    cursor.execute("SELECT video_name, like_count FROM video_details ORDER BY like_count;")
+    result_2 = cursor.fetchall()
+    df2 = pd.DataFrame(result_2, columns=['video_name','like_count']).reset_index(drop=True)
+    df2.index += 1
+    st.dataframe(df2) 
+
+# Q3
+elif question_tosql == '3. What are the top 10 most viewed videos in their channels?':
+        cursor.execute("SELECT video_name,view_count FROM video_details order by like_count DESC limit 10;")
+        result_3 = cursor.fetchall()
+        df3 = pd.DataFrame(result_3,columns=['video_name', 'view_count']).reset_index(drop=True)
+        df3.index += 1
+        st.dataframe(df3) 
+
+
+# Q4 
+elif question_tosql == '4. How many comments were made on each video ?':
+    cursor.execute("select video_name ,comment_count from video_details ORDER BY video_name ;")
+    result_4 = cursor.fetchall()
+    df4 = pd.DataFrame(result_4,columns=['Video Name', 'Comment count']).reset_index(drop=True)
+    df4.index += 1
+    st.dataframe(df4)
+
+# Q5
+elif question_tosql == '5. Which videos have the highest number of comments ?':
+
+    cursor.execute("SELECT video_name, comment_count FROM video_details WHERE comment_count > 1000;")
+    result_5= cursor.fetchall()
+    df5 = pd.DataFrame(result_5,columns=['comment_count', 'video_name']).reset_index(drop=True)
+    df5.index += 1
+    st.dataframe(df5)  
+
+# Q6
+elif question_tosql == '6. What is the total number of likes and dislikes for each video?':
+    st.write('**Note:- In November 2021, YouTube removed the public dislike count from all of its videos.**')
+    cursor.execute("SELECT video_name,like_count,dislike_count FROM video_details order by comment_count desc limit 10;")
+    result_6= cursor.fetchall()
+    df6 = pd.DataFrame(result_6,columns=['video_name', 'like_count', 'dislike_count']).reset_index(drop=True)
+    df6.index += 1
+    st.dataframe(df6)    
+
+# Q7
+elif question_tosql == '7. What is the total number of views for this channel ?':
+        cursor.execute("SELECT channel_name, channel_view_count FROM channel ORDER BY channel_view_count limit 1;")
+        result_7= cursor.fetchall()
+        df7 = pd.DataFrame(result_7,columns=['channel_name', 'channel_view_count']).reset_index(drop=True)
+        df7.index += 1
+        st.dataframe(df7) 
+
+
+# Q8
+elif question_tosql == '8. What are the names of all the channels that have published videos in the year 2022?':
+    cursor.execute("SELECT  video_id , video_name ,published_at FROM video_details WHERE YEAR(published_at) = 2022;")
+    result_8= cursor.fetchall()
+    df8 = pd.DataFrame(result_8,columns=['video_id','video_name', 'published_at']).reset_index(drop=True)
+    df8.index += 1
+    st.dataframe(df8) 
+
+# Q9
+elif question_tosql == '9. show the channel details ?':
+    cursor.execute("SELECT * FROM youtube_project.channel limit 1;")
+    result_9= cursor.fetchall()
+    df9 = pd.DataFrame(result_9,columns=['channel_name','channel_video_count','channel_subscriber_count','channel_view_count','channel_description','playlist_id']).reset_index(drop=True)
+    df9.index += 1
+    st.dataframe(df9)   
+
+
+# Q10
+elif question_tosql == '10.  show the All videos details ?':
+    cursor.execute("SELECT * FROM youtube_project.video_details;")
+    result_10= cursor.fetchall()
+    df10 = pd.DataFrame(result_10,columns=['video_id','video_name','video_description','tags','published_at','view_count','like_count','dislike_count','favorite_count','comment_count','duration','thumbnail','caption_status','comments','_id']).reset_index(drop=True)
+    df10.index += 1
+    st.dataframe(df10)    
+
+connection.close()
+
