@@ -54,7 +54,7 @@ channel=pd.DataFrame(data)
 print(channel)
 
 #GET PLAYLIST ID
-playlist_id=channel.loc[channel['channel_name']=='A2D Channel', 'playlist_id'].iloc[0]
+playlist_id=channel.loc[channel['channel_name']=='A2D Channel', 'channel_playlist_id'].iloc[0]
 print(playlist_id)
 
 
@@ -156,8 +156,6 @@ res=collection.find()
 df=pd.DataFrame(res)   
 
 res=col.find()
-
-res
 
 for i in res:
    z = i
