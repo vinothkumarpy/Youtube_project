@@ -9,8 +9,8 @@ BATCH: DDM2
 
 DOMAIN : DATA SCIENCE
 
-Used Skills:
-Python / MongoDB / MySQL / YouTube Data API / streamlit / Pandas / Plotly / VS_Code Software
+Used Skills
+$ Python / MongoDB / MySQL / YouTube Data API / streamlit / Pandas / Plotly / VS_Code Software
 
 The application should have the following features:
 
