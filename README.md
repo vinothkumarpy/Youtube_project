@@ -9,6 +9,16 @@ BATCH: DDM2
 
 DOMAIN : DATA SCIENCE
 
+Used Skills:
+>>> Python
+>>> MongoDB
+>>> MySQL
+>>> YouTube Data API
+>>> Streamlit
+>>> Pandas
+>>> Plotly
+>>> VS_Code Software
+
 The application should have the following features:
 
 $ Ability to input a YouTube channel ID and retrieve all the relevant data (Channel name, subscribers, total video count, playlist ID, video ID, likes, dislikes, comments of each video) using Google API.
