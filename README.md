@@ -5,7 +5,7 @@ Problem Statement: https://docs.google.com/document/d/1WrMDf4KnzprK37EJLr3QW0wRU
 
 NAME : vinothkumar s
 
-BATCH: DDM2
+BATCH: DTM2
 
 DOMAIN : DATA SCIENCE
 
