@@ -6,6 +6,7 @@ import plotly.express as px
 import mysql.connector as sql
 from googleapiclient.discovery import build
 from datetime import datetime
+import matplotlib.pyplot as plt
 
 
 # Set page configuration and title
@@ -184,17 +185,18 @@ if selected == "Channel Analyzer":
                       channel["channel_country"])
             cursor.execute(query, values)
             mydb.commit()
+
             
     def insert_into_videos():
         coll_video=db.video_data
         for document in coll_video.find(user_inp):
             published_date = datetime.strptime(document['Published_date'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')
-            caption_status = 0 if document['Caption_status'] == 'false' else 1
-            
+            caption_status = 0 if document['Caption_status'].lower() == 'false' else 1
+
     # Map MongoDB document fields to MySQL table columns
             data = {
                 'channel_name': document['channel_name'],
-                'channel_id': document['channel_id'],
+                'channel_id': str(document['channel_id']),
                 'video_id': document['video_id'],
                 'title': document['title'],
                 'thumbnail': document['thumbnail'],
@@ -219,10 +221,12 @@ if selected == "Channel Analyzer":
 # Commit changes and close connections
             mydb.commit()
 
+
     if st.button("Submit"):
-        insert_into_channels()
-        insert_into_videos()
-        st.success("Transformation to MySQL Successful!")
+        with st.spinner("Inserting data to MySQL..."):
+            insert_into_channels()
+            insert_into_videos()
+        st.success("Successfully  to MySQL!")
  
                        
 
@@ -251,7 +255,22 @@ if selected == "View":
                             ORDER BY channel_name""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
-        
+
+        # Visualize the number of videos per channel using a bar chart
+        videos_per_channel = df.groupby('Channel_Name')['Video_name'].count()
+
+            
+        # Plotting the line chart
+        plt.figure(figsize=(10, 6))
+        plt.plot(videos_per_channel.index, videos_per_channel.values, marker='o', linestyle='-')
+        plt.xlabel('Channel Name')
+        plt.ylabel('Number of Videos')
+        plt.title('Number of Videos per Channel')
+        plt.xticks(rotation=45, ha='right')
+    
+        # Display the plot in Streamlit
+        st.pyplot(plt)
+
     elif questions == '2. Which channels have the most number of videos, and how many videos do they have?':
         cursor.execute("""SELECT channel_name AS Channel_Name, channel_total_videos AS Total_Videos
                             FROM channel_data
@@ -276,18 +295,39 @@ if selected == "View":
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
         st.write("### :green[Top 10 most viewed videos :]")
+        
+        # Advanced visualization using Plotly
         fig = px.bar(df,
-                     x=cursor.column_names[2],
-                     y=cursor.column_names[1],
+                     x='Views',
+                     y='Video_Title',
                      orientation='h',
-                     color=cursor.column_names[0]
-                    )
-        st.plotly_chart(fig,use_container_width=True)
+                     color='Channel_Name',
+                     labels={'Channel_Name': 'Channel Name', 'Video_Title': 'Video Title'},
+                     title='Top 10 Most Viewed Videos and Their Respective Channels',
+                     )
+        fig.update_layout(showlegend=True)
+        
+        # Display the Plotly chart in Streamlit
+        st.plotly_chart(fig, use_container_width=True)
         
     elif questions == '4. How many comments were made on each video, and what are their corresponding video names?':
         cursor.execute("""SELECT channel_name, video_id, title, comments FROM video_data ORDER BY comments DESC LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
+
+        # Visualization using Plotly
+        fig = px.bar(df,
+                     x='comments',
+                     y='title',
+                     orientation='h',
+                     color='channel_name',
+                     labels={'channel_name': 'Channel Name', 'title': 'Video Title', 'comments': 'Number of Comments'},
+                     title='Top 10 Videos with the Most Comments',
+                     )
+        fig.update_layout(showlegend=True)
+    
+        # Display the Plotly chart in Streamlit
+        st.plotly_chart(fig, use_container_width=True)
           
     elif questions == '5. Which videos have the highest number of likes, and what are their corresponding channel names?':
         cursor.execute("""SELECT channel_name AS Channel_Name,title AS Title,likes AS likes FROM video_data ORDER BY likes DESC LIMIT 10;""")
@@ -306,6 +346,10 @@ if selected == "View":
         cursor.execute("""SELECT title AS Title, likes AS likes FROM video_data ORDER BY likes DESC;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
+        
+        st.subheader("Visualization for 'Likes' column")
+        st.bar_chart(df['likes'])
+
          
     elif questions == '7. What is the total number of views for each channel, and what are their corresponding channel names?':
         cursor.execute("""SELECT channel_name AS Channel_Name, channel_views AS views FROM channel_data ORDER BY channel_views DESC;""")
