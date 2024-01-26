@@ -7,6 +7,7 @@ import mysql.connector as sql
 from googleapiclient.discovery import build
 from datetime import datetime
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 # Set page configuration and title
@@ -245,8 +246,8 @@ if selected == "View":
     '5. Which videos have the highest number of likes, and what are their corresponding channel names?',
     '6. What is the total number of likes and dislikes for each video, and what are their corresponding video names?',
     '7. What is the total number of views for each channel, and what are their corresponding channel names?',
-    '8. What are the names of all the channels that have published videos in the year 2022?',
-    '9. What is the duration of all videos in each channel, and what are their corresponding channel names?',
+    '8. What are the names of all the channels that have published videos in the year 2023?',
+    '9. What is the duration of top_10 videos in each channel, and what are their corresponding channel names?',
     '10. Which videos have the highest number of comments, and what are their corresponding channel names?'])
     
     if questions == '1. What are the names of all the videos and their corresponding channels?':
@@ -254,38 +255,41 @@ if selected == "View":
                             FROM video_data
                             ORDER BY channel_name""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.write(df)
+    
+        with col2:
 
         # Visualize the number of videos per channel using a bar chart
-        videos_per_channel = df.groupby('Channel_Name')['Video_name'].count()
+            videos_per_channel = df.groupby('Channel_Name')['Video_name'].count()
 
-            
-        # Plotting the line chart
-        plt.figure(figsize=(10, 6))
-        plt.plot(videos_per_channel.index, videos_per_channel.values, marker='o', linestyle='-')
-        plt.xlabel('Channel Name')
-        plt.ylabel('Number of Videos')
-        plt.title('Number of Videos per Channel')
-        plt.xticks(rotation=45, ha='right')
-    
-        # Display the plot in Streamlit
-        st.pyplot(plt)
+        # Plotting the pie chart for the distribution of videos across channels
+            plt.figure(figsize=(8, 8))
+            plt.pie(videos_per_channel.values, labels=videos_per_channel.index, autopct='%1.1f%%', startangle=90, colors=plt.cm.Paired.colors)
+            plt.title('Distribution of Videos Across Channels ')
+            st.pyplot(plt)
 
     elif questions == '2. Which channels have the most number of videos, and how many videos do they have?':
         cursor.execute("""SELECT channel_name AS Channel_Name, channel_total_videos AS Total_Videos
                             FROM channel_data
                             ORDER BY total_videos DESC""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
-        st.write("### :blue[Number of videos in each channel :]")
+        col1,col2=st.columns(2)
+
+        with col1:
+            st.write(df)
+        
         #st.bar_chart(df,x= mycursor.column_names[0],y= mycursor.column_names[1])
-        fig = px.bar(df,
-                     x=cursor.column_names[0],
-                     y=cursor.column_names[1],
-                     orientation='v',
-                     color=cursor.column_names[0]
-                    )
-        st.plotly_chart(fig,use_container_width=True)
+        with col2:
+            fig = px.bar(df,
+                         x=cursor.column_names[0],
+                         y=cursor.column_names[1],
+                         orientation='v',
+                         color=cursor.column_names[0]
+                         )
+            st.plotly_chart(fig,use_container_width=True)
         
     elif questions == '3. What are the top 10 most viewed videos and their respective channels?':
         cursor.execute("""SELECT channel_name AS Channel_Name, title AS Video_Title, views AS Views 
@@ -345,10 +349,10 @@ if selected == "View":
     elif questions == '6. What is the total number of likes and dislikes for each video, and what are their corresponding video names?':
         cursor.execute("""SELECT title AS Title, likes AS likes FROM video_data ORDER BY likes DESC;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
         
-        st.subheader("Visualization for 'Likes' column")
-        st.bar_chart(df['likes'])
+        st.write(df)
+
+        st.bar_chart(df.set_index('Title')['likes'])
 
          
     elif questions == '7. What is the total number of views for each channel, and what are their corresponding channel names?':
@@ -365,23 +369,31 @@ if selected == "View":
                     )
         st.plotly_chart(fig,use_container_width=True)
         
-    elif questions == '8. What are the names of all the channels that have published videos in the year 2022?':
-        cursor.execute("""SELECT title AS Channel_Name FROM video_data WHERE published_date LIKE '2022%' GROUP BY title ORDER BY title;""")
+    elif questions == '8. What are the names of all the channels that have published videos in the year 2023?':
+        cursor.execute("""SELECT title AS Channel_Name FROM video_data WHERE published_date LIKE '2023%' GROUP BY title ORDER BY title;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
         
-    elif questions == '9. What is the duration of all videos in each channel, and what are their corresponding channel names?':
-        cursor.execute("""SELECT title AS Channel_Name, duration AS duration FROM video_data ORDER BY title DESC;""")
+    elif questions == '9. What is the duration of top_10 videos in each channel, and what are their corresponding channel names?':
+        cursor.execute("""SELECT v.title AS video_Name, MAX(v.duration) AS highest_duration, c.channel_name
+                       FROM video_data v
+                       JOIN channel_data c ON v.channel_id = c.channel_id
+                       GROUP BY v.title, c.channel_name
+                       ORDER BY highest_duration DESC
+                       LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
-        st.write("### :green[video duration for channels :]")
-        fig = px.bar(df,
-                     x=cursor.column_names[0],
-                     y=cursor.column_names[1],
-                     orientation='v',
-                     color=cursor.column_names[0]
-                    )
-        st.plotly_chart(fig,use_container_width=True)
+        st.write(df)  
+
+        plt.figure(figsize=(10, 6))
+        for channel_name, group in df.groupby('channel_name'):
+            plt.barh(group['video_Name'], group['highest_duration'], label=channel_name)
+
+            plt.xlabel('Duration')
+            plt.ylabel('Video Name')
+            plt.title('Top 10 Videos with Highest Duration in Each Channel')
+            plt.legend(title='Channel Name')
+            st.pyplot(plt)      
+      
         
     elif questions == '10. Which videos have the highest number of comments, and what are their corresponding channel names?':
         cursor.execute("""SELECT title AS Channel_Name,video_id AS Video_ID,comments AS Comments FROM video_data ORDER BY comments DESC LIMIT 10;""")
