@@ -229,10 +229,6 @@ if selected == "Channel Analyzer":
             insert_into_videos()
         st.success("Successfully  to MySQL!")
  
-                       
-
-
-
 
 # VIEW PAGE
 if selected == "View":
