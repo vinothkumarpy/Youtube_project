@@ -1,31 +1,84 @@
-YouTube-Data-Harvesting-and-Warehousing-using-SQL-MongoDB-and-Streamlit.
-
-Problem Statement: https://docs.google.com/document/d/1WrMDf4KnzprK37EJLr3QW0wRUB3few-1Yujv6wnYhZw/edit
 
 
-NAME : vinothkumar s
+# YouTube Data Harvesting and Warehousing
 
-BATCH: DTM2
+## Introduction
 
-DOMAIN : DATA SCIENCE
+This project is a comprehensive data science application that utilizes Python, MongoDB, MySQL, YouTube Data API, Streamlit, Pandas, Plotly, and VS Code. It aims to fetch and organize data from YouTube channels, store it in a MongoDB data lake, migrate it to a SQL data warehouse, and provide an interactive user interface using Streamlit.
 
-Used Skills
-$ Python / MongoDB / MySQL / YouTube Data API / streamlit / Pandas / Plotly / VS_Code Software
+## Problem Statement
 
-The application should have the following features:
+For a detailed overview of the problem statement and project requirements, refer to the [Problem Statement Document](https://docs.google.com/document/d/1WrMDf4KnzprK37EJLr3QW0wRUB3few-1Yujv6wnYhZw/edit).
 
-$ Ability to input a YouTube channel ID and retrieve all the relevant data (Channel name, subscribers, total video count, playlist ID, video ID, likes, dislikes, comments of each video) using Google API.
+## Author Information
 
-$ Option to store the data in a MongoDB database as a data lake. Ability to collect data for up to 10 different YouTube channels and store them in the data lake by clicking a button. Option to select a channel name and migrate its data from the data lake to a SQL database as tables.
+- **Name:** Vinothkumar S
+- **Batch:** DTM2
+- **Domain:** Data Science
 
-$ Ability to search and retrieve data from the SQL database using different search options, including joining tables to get channel details.
+## Features
 
-$ YouTube API: You'll need to use the YouTube API to retrieve channel and video data. You can use the Google API client library for Python to make requests to the API.
+1. **YouTube Data Retrieval:**
+   - Input a YouTube channel ID and retrieve relevant data (Channel name, subscribers, total video count, playlist ID, video ID, likes, dislikes, comments of each video) using Google API.
 
-$ Store data in a MongoDB data lake: Once you retrieve the data from the YouTube API, you can store it in a MongoDB data lake. MongoDB is a great choice for a data lake because it can handle unstructured and semi-structured data easily.
+2. **Data Lake in MongoDB:**
+   - Store data in a MongoDB data lake for up to 10 different YouTube channels with the ability to click a button and collect the data.
 
-$ Migrate data to a SQL data warehouse: After you've collected data for multiple channels, you can migrate it to a SQL data warehouse. You can use a SQL database such as MySQL or PostgreSQL for this.
+3. **SQL Database Migration:**
+   - Select a channel name and migrate its data from the data lake to a SQL database (MySQL or PostgreSQL).
 
-$ Query the SQL data warehouse: You can use SQL queries to join the tables in the SQL data warehouse and retrieve data for specific channels based on user input. You can use a Python SQL library such as SQLAlchemy to interact with the SQL database.
+4. **SQL Database Querying:**
+   - Search and retrieve data from the SQL database using different search options, including joining tables to get channel details.
 
-$ Display data in the Streamlit app: Finally, you can display the retrieved data in the Streamlit app. Overall, this approach involves building a simple UI with Streamlit, retrieving data from the YouTube API, storing it in a MongoDB data lake, migrating it to a SQL data warehouse, querying the data warehouse with SQL, and displaying the data in the Streamlit app.
+5. **YouTube API Integration:**
+   - Utilize the YouTube API to retrieve channel and video data, leveraging the Google API client library for Python.
+
+6. **Technologies Used:**
+   - Python
+   - MongoDB
+   - MySQL
+   - YouTube Data API
+   - Streamlit
+   - Pandas
+   - Plotly
+   - VS Code
+
+## Getting Started
+
+1. **YouTube API Setup:**
+   - Obtain API key from [Google Cloud Console](https://console.cloud.google.com/) and enable YouTube Data API.
+
+2. **MongoDB Setup:**
+   - Install MongoDB and pymongo library.
+
+3. **SQL Database Setup:**
+   - Install MySQL or PostgreSQL and necessary Python libraries.
+
+4. **Run the Application:**
+   - Execute the main script to run the application.
+
+## Usage
+
+1. **Data Retrieval:**
+   - Input YouTube channel ID and click a button to fetch data.
+
+2. **Data Storage:**
+   - Store data in MongoDB by clicking a button.
+
+3. **Data Migration:**
+   - Select a channel name and migrate data to SQL.
+
+4. **Data Querying:**
+   - Use the Streamlit app to search and retrieve data from the SQL database.
+
+## Contributing
+
+Feel free to contribute by opening issues, suggesting improvements, or submitting pull requests. Your input is highly valued!
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+---
+
+Feel free to customize the content based on your preferences or additional information you want to include.
