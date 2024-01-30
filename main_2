@@ -7,11 +7,18 @@ import mysql.connector as sql
 from googleapiclient.discovery import build
 from datetime import datetime
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 
 # Set page configuration and title
 st.set_page_config(page_title="YouTube Data Harvesting and Warehousing | by vinothkumar", layout="wide")
+
+def setting_bg():
+    st.markdown(f""" <style>.stApp {{
+                        background: url("https://www.shutterstock.com/image-photo/abstract-red-white-blurred-background-260nw-286357637.jpg");
+                        background-size: cover}}
+                     </style>""", unsafe_allow_html=True)
+
+setting_bg()
 
 # Set option menu
 with st.sidebar:
@@ -233,7 +240,7 @@ if selected == "Channel Analyzer":
 # VIEW PAGE
 if selected == "View":
     
-    st.write("## :orange[Select any question to get Insights]")
+    st.write("## :white[Select any question to get Insights]")
     questions = st.selectbox('Questions',
     ['1. What are the names of all the videos and their corresponding channels?',
     '2. Which channels have the most number of videos, and how many videos do they have?',
@@ -260,6 +267,7 @@ if selected == "View":
 
         # Visualize the number of videos per channel using a bar chart
             videos_per_channel = df.groupby('Channel_Name')['Video_name'].count()
+
 
         # Plotting the pie chart for the distribution of videos across channels
             plt.figure(figsize=(8, 8))
@@ -294,7 +302,7 @@ if selected == "View":
                             LIMIT 10""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
-        st.write("### :green[Top 10 most viewed videos :]")
+        st.write("### :white[Top 10 most viewed videos :]")
         
         # Advanced visualization using Plotly
         fig = px.bar(df,
@@ -333,7 +341,7 @@ if selected == "View":
         cursor.execute("""SELECT channel_name AS Channel_Name,title AS Title,likes AS likes FROM video_data ORDER BY likes DESC LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
-        st.write("### :green[Top 10 most liked videos :]")
+        st.write("### :white[Top 10 most liked videos :]")
         fig = px.bar(df,
                      x=cursor.column_names[2],
                      y=cursor.column_names[1],
@@ -356,7 +364,7 @@ if selected == "View":
         
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
-        st.write("### :green[Channels vs Views :]")
+        st.write("### :white[Channels vs Views :]")
         fig = px.bar(df,
                      x=cursor.column_names[0],
                      y=cursor.column_names[1],
@@ -395,7 +403,7 @@ if selected == "View":
         cursor.execute("""SELECT title AS Channel_Name,video_id AS Video_ID,comments AS Comments FROM video_data ORDER BY comments DESC LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         st.write(df)
-        st.write("### :green[Videos with most comments :]")
+        st.write("### :white[Videos with most comments :]")
         fig = px.bar(df,
                      x=cursor.column_names[1],
                      y=cursor.column_names[2],
