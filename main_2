@@ -6,29 +6,39 @@ import plotly.express as px
 import mysql.connector as sql
 from googleapiclient.discovery import build
 from datetime import datetime
-import matplotlib.pyplot as plt
+from streamlit import *
+from streamlit_extras import *
+from streamlit_lottie import *
+from streamlit_option_menu import *
+from streamlit_lottie import st_lottie
+import json as js
+import pymongo as py
+import requests
 
+pd.set_option('display.max_columns', None)
 
 # Set page configuration and title
 st.set_page_config(page_title="YouTube Data Harvesting and Warehousing | by vinothkumar", layout="wide")
 
-def setting_bg():
-    st.markdown(f""" <style>.stApp {{
-                        background: url("https://www.shutterstock.com/image-photo/abstract-red-white-blurred-background-260nw-286357637.jpg");
-                        background-size: cover}}
-                     </style>""", unsafe_allow_html=True)
-
-setting_bg()
-
 # Set option menu
-with st.sidebar:
-    selected = option_menu("Main Menu", ["Home", "Channel Analyzer", "View"],
-                           icons=['house', "tools", 'card-text'], menu_icon="cast", default_index=1)
+
+
+selected = option_menu(
+    menu_title="airbnb",
+    options=['Home', 'Migrate and Store', 'View', 'Thank You'],
+    icons=['mic-fill', 'cash-stack', 'phone-flip', "handshake"],
+    menu_icon='alexa',
+    default_index=0,
+)
+
+
 
 # Connect to databases (MongoDB, MySQL)
 # MongoDB
 vinoth = py.MongoClient("mongodb+srv://vinothkumar:guvi8799@cluster0.1kotbix.mongodb.net/?retryWrites=true&w=majority")
 db = vinoth["youtube_channel_data"]
+
+
 
 # MySQL
 mydb = sql.connect(host="localhost",
@@ -37,12 +47,18 @@ mydb = sql.connect(host="localhost",
                   database="youtube_project")
 cursor = mydb.cursor()
 
+
+
 # Build a connection with the YouTube API to access channel data
 # API Key
 api_key = "AIzaSyCd95ARRvTm17ThP-OWN6PePgRq55NaHN4"
 
+
+
 # Build access service
 youtube = build("youtube", "v3", developerKey=api_key)
+
+
 
 # Function to get channel details
 def channel_details(channel_id):
@@ -67,7 +83,7 @@ def channel_details(channel_id):
 
     return channel_data
 
-# Function to get video IDs (used to get all video details)
+
 # Get the upload playlist ID to get video details
 def get_video_ids(channel_id):
     video_ids = []
@@ -131,33 +147,199 @@ def get_channel_name():
 
 channel_name = get_channel_name()
 
+def lottie(filepath):
+    with open(filepath, 'r') as file:
+        return js.load(file)
+                        
+if selected == 'Home':
 
-# Set the home page and options
-if selected == "Home":
-    cl1, cl2 = st.columns(2, gap="large")
-    cl1.image("https://cdn.freebiesupply.com/logos/large/2x/youtube-2-logo-png-transparent.png")
-    cl1.markdown("## :blue[Domain] : Social Media ('Youtube')")
-    cl1.markdown("## :blue[Technologies used] : Python scripting, Youtube Data retrieval using API, Streamlit")
-    cl1.markdown("## :blue[Overview] : Retrieving the YouTube channel data from the Google API, storing it in MongoDB as a data lake, migrating and transforming data into a SQL database, then querying the data and displaying it in the Streamlit app.")
-    cl2.image("https://dezyre.gumlet.io/files.dezyre.com/images/blog/data_science_project.webp?w=376&dpr=1.0")
-    cl2.markdown("## :green[Used Databases] : MySQL, MongoDB")
-    cl2.markdown("Usually, MongoDB Cloud is the best database for storing unstructured data.")
-    cl2.markdown("## :green[USED SOFTWARE (IDE)] : VS-CODE (Visual Studio Code)")
-    cl2.markdown("Visual Studio Code is a streamlined code editor with support for development operations like debugging, task running, and version control. It aims to provide just the tools a developer needs for a quick code-build-debug cycle and leaves more complex workflows to fuller-featured IDEs, such as Visual Studio IDE.")
+    def load_lottieurl(url):
+        r = requests.get(url)
+        if r.status_code != 200:
+            return None
+        return r.json()
 
-if selected == "Channel Analyzer":
-    tab1,tab2 = st.tabs(["EXTRACT ", "TRANSFORM "])
+    # Use local CSS
+    def local_css(file_name):
+        with open(file_name) as f:
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-    with tab1:
-        st.write("Enter your channel_id below")
+    local_css(r"D:\vk_project\Air_bnb\style.css")
+
+    lottie_coding = lottie(r"D:\vk_project\lottiite animation\intro vk.json")
+
+
+    # ---- HEADER SECTION -----``
+    with st.container():
+        col1,col2=st.columns(2)
+        with col1:
+            st.markdown( f"<h1 style='font-size: 70px;'><span style='color: #00BFFF;'> Hi,  </span><span style='color: white;'> I am vinoth kumar </h1>",unsafe_allow_html=True)
+            st.markdown(
+                f"<h1 style='font-size: 40px;'><span style='color: white;'>A Data Scientist,</span><span style='color: #00BFFF;'> From India</span></h1>",
+                unsafe_allow_html=True
+                )
+            st.write(f'<h1 style="color:#B0C4DE; font-size: 20px;">A data scientist skilled in extracting actionable insights from complex datasets, adept at employing advanced analytics and machine learning techniques to solve real-world problems. Proficient in Python, statistical modeling, and data visualization, with a strong commitment to driving data-driven decision-making.</h1>', unsafe_allow_html=True)    
+
+            st.write("[view more projects >](https://github.com/vinothkumarpy?tab=repositories)")
+
+        with col2:
+            st_lottie(lottie_coding, height=400, key="coding")    
+
+    # ---- WHAT I DO ----
+    with st.container():
+        st.write("---")
+        col1,col2,col3=st.columns(3)
+
+        with col1:
+            file = lottie(r"D:\vk_project\lottiite animation\data science.json")
+            st_lottie(file,height=300,key=None)
+
+        with col2:
+            st.markdown( f"<h1 style='font-size: 70px;text-align: center;'><span style='color: #00BFFF;'> WHAT  </span><span style='color: white;'> I DO </h1>",unsafe_allow_html=True)
+            file=lottie(r'D:\vk_project\youtupe\icon.json')
+            st_lottie(file,height=500,key=None)
+        with col3:
+            file = lottie(r"D:\vk_project\lottiite animation\working with data set.json")
+            st_lottie(file,height=300,key=None)    
+        
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'>Retrieving data from the  </span><span style='color: white;'>YouTube API</h1>",unsafe_allow_html=True)
+        st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">utilizes the Google API to retrieve comprehensive data from YouTube channels. The data includes information on channels, playlists, videos, and comments.</h1>', unsafe_allow_html=True)
+    
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Store Data in  </span><span style='color: white;'>MongoDB-Atlas Cloud</h1>",unsafe_allow_html=True)
+        st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">Retrieved data is stored in a MongoDB database based on user authorization. If the data already exists in the database, it can be overwritten with user consent. This storage process ensures efficient data management and preservation, allowing for seamless handling of the collected data.</h1>', unsafe_allow_html=True) 
+
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Migrating data to a  </span><span style='color: white;'>MYSQL data warehouse</h1>",unsafe_allow_html=True)
+        st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">Migrate data from MongoDB to a SQL data warehouse. Then choose which channels data to migrate. To ensure compatibility with a structured format, the data is cleansed using the powerful pandas library. Following data cleaning, the information is segregated into separate tables, including channels, playlists, videos, and comments, utilizing SQL queries.</h1>', unsafe_allow_html=True)
+
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Data   </span><span style='color: white;'>Analysis</h1>",unsafe_allow_html=True)
+        st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">provides comprehensive data analysis capabilities using Plotly and Streamlit. With the integrated Plotly library, users can create interactive and visually appealing charts and graphs to gain insights from the collected data.</h1>', unsafe_allow_html=True)
+
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Interactive  </span><span style='color: white;'>Streamlit UI</h1>",unsafe_allow_html=True)
+        st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">Crafted an engaging and user-friendly interface for seamless data exploration and presentation.</h1>', unsafe_allow_html=True)
+
+        
+        st.markdown("[🔗 GitHub Repo >](https://github.com/vinothkumarpy/AirBnb)")    
+
+
+
+    with st.container():
+        st.write("---")
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Used-Tech  </span><span style='color: white;'>& Skills</h1>",unsafe_allow_html=True)
+
+        col1,col2,col3 =st.columns(3)
+        with col1:
+            
+            file = lottie(r"D:\vk_project\lottiite animation\python.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>python</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            file = lottie(r"D:\vk_project\lottiite animation\Mongo.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>Mongo-DB</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            file = lottie(r"D:\vk_project\lottiite animation\data_exploaration.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>Data Exploaration</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+        with col2:
+
+            file = lottie(r"D:\vk_project\youtupe\abi integration.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>API Integration</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            file = lottie(r"D:\vk_project\youtupe\Data Fetching.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>Data Fetching</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            file = lottie(r"D:\vk_project\lottiite animation\database.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>DataBase</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            
+
+        with col3:    
+            file = lottie(r"D:\vk_project\lottiite animation\data collection.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>Data Collection</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            file = lottie(r"D:\vk_project\lottiite animation\Data cleaning.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>Data Cleaning</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+            file = lottie(r"D:\vk_project\lottiite animation\frame work.json")
+            st.markdown("<h1 style='color: #00BFFF; text-align: center; font-size: 30px;'>Web application development with Streamlit</h1>", unsafe_allow_html=True)
+            st_lottie(file,height=200,key=None)
+
+
+            
+       
+
+    # ---- PROJECTS ----
+    with st.container():
+        st.write("---")
+        st.markdown( f"<h1 style='font-size: 70px;'><span style='color: #00BFFF;'> About  </span><span style='color: white;'> Projects </h1>",unsafe_allow_html=True)
+        col1,col2=st.columns(2)
+        with col1:
+            file = lottie(r"D:\vk_project\youtupe\icon_2.json")
+            st_lottie(file,height=300,key=None)
+        with col2:
+            st.write("##")
+            st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">YouTube Data Harvesting and Warehousing is a project aimed at developing a user-friendly Streamlit application that leverages the power of the Google API to extract valuable information from YouTube channels. The extracted data is then stored in a MongoDB database, subsequently migrated to a SQL data warehouse, and made accessible for analysis and exploration within the Streamlit app.</h1>', unsafe_allow_html=True)
+        st.markdown( f"<h1 style='font-size: 70px;'><span style='color: #00BFFF;'> Re</span><span style='color: white;'>sults</h1>",unsafe_allow_html=True)
+        st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">The project provides a user-friendly interface for exploring Youtupe channel Data.</h1>', unsafe_allow_html=True)    
+        
+
+    # ---- CONTACT ----
+    with st.container():
+        st.write("---")
+        st.markdown( f"<h1 style='font-size: 70px;'><span style='color: #00BFFF;'> Get In Touch  </span><span style='color: white;'> With Me </h1>",unsafe_allow_html=True)
+        st.write("##")
+
+        # Documention: https://formsubmit.co/ !!! CHANGE EMAIL ADDRESS !!!
+        contact_form = """
+        <form action="https://formsubmit.co/vinoharish8799@gmail.com" method="POST">
+            <input type="hidden" name="_captcha" value="false">
+            <input type="text" name="name" placeholder="Your name" required>
+            <input type="email" name="email" placeholder="Your email" required>
+            <textarea name="message" placeholder="Your message here" required></textarea>
+            <button type="submit" style="background-color: #00BFFF; color: white;">Send</button>
+        </form>
+        """
+        left_column, right_column = st.columns(2)
+        with left_column:
+            st.markdown(contact_form, unsafe_allow_html=True)
+        with right_column:
+            st.empty()
+
+
+if selected == "Migrate and Store":
+
+
+    option = option_menu(menu_title='', options=['EXTRACT', 'TRANSFORM'],
+                         icons=['database-fill', 'list-task'],
+                         default_index=0, orientation="horizontal")
+
+    if button and option == 'EXTRACT':
+
+        col1,col2=st.columns(2)
+        with col1:
+            file = lottie(r"D:\vk_project\youtupe\file transfer.json")
+            st_lottie(file,height=300,key=None)
+        with col2:
+            st.write("")
+            st.write("")
+            st.write("")
+            st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Data Migration </span><span style='color: white;'>section </h1>",unsafe_allow_html=True)
+        
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Enter your  </span><span style='color: white;'>channel_id </h1>",unsafe_allow_html=True)
         channel_id = st.text_input("Enter")
-
+        
         if channel_id and st.button("Extract"):
             channel_data = channel_details(channel_id)
             df = pd.DataFrame(channel_data)
             st.table(df)
-
-        if st.button("Upload to MongoDB"):
+        
+        if channel_id and st.button("Upload to MongoDB"):
             st.spinner(text="In progress...")
             channel_list = channel_details(channel_id)
             video_ids = get_video_ids(channel_id)
@@ -169,18 +351,28 @@ if selected == "Channel Analyzer":
             cll2 = db["video_data"]
             cll2.insert_many(videos_data)
 
-            st.write("Successfully uploaded to MongoDB")
+            st.markdown('<p style="color:lightgreen;">Successfully uploaded to MongoDB</p>', unsafe_allow_html=True)
             st.write("Our cloud storage system is MongoDB Atlas")
 
     # TRANSFORM TAB
-    with tab2:    
+    if button and option == 'TRANSFORM':  
+        col1,col2=st.columns(2)
+        with col1:
+            file = lottie(r"D:\vk_project\youtupe\store.json")
+            st_lottie(file,height=300,key=None)
+        with col2:
+            st.write("")
+            st.write("")
+            st.write("")
+            st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Data store </span><span style='color: white;'>section </h1>",unsafe_allow_html=True)
+
         st.markdown("# Transformation")
         st.markdown("Select a channel to begin the transformation to SQL")
         ch_names = get_channel_name()
         user_inp = st.selectbox("Select channel", options=ch_names)
 
     def insert_into_channels():
-        coll_channel=db.channel_details
+        coll_channel=db.channel_details                          
         query = "INSERT INTO channel_data (channel_id, channel_name, channel_description, subscribers, channel_views, channel_total_videos, playlist_id, channel_country) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         for channel in coll_channel.find(user_inp):
             values = (channel["channel_id"],
@@ -200,7 +392,7 @@ if selected == "Channel Analyzer":
         for document in coll_video.find(user_inp):
             published_date = datetime.strptime(document['Published_date'], '%Y-%m-%dT%H:%M:%SZ').strftime('%Y-%m-%d %H:%M:%S')
             caption_status = 0 if document['Caption_status'].lower() == 'false' else 1
-
+            comments = document['Comments']
     # Map MongoDB document fields to MySQL table columns
             data = {
                 'channel_name': document['channel_name'],
@@ -213,7 +405,7 @@ if selected == "Channel Analyzer":
                 'Duration': document['Duration'],
                 'Views': int(document['Views']),
                 'Likes': int(document['Likes']),
-                'Comments': int(document['Comments']),
+                'Comments': int(comments) if comments is not None else 0,
                 'Favorite_count': int(document['Favorite_count']),
                 'Definition': document['Definition'],
                 'Caption_status': caption_status
@@ -235,13 +427,23 @@ if selected == "Channel Analyzer":
             insert_into_channels()
             insert_into_videos()
         st.success("Successfully  to MySQL!")
- 
+
 
 # VIEW PAGE
 if selected == "View":
-    
-    st.write("## :white[Select any question to get Insights]")
+
+    col1,col2=st.columns(2)
+    with col1:
+        file=lottie(r"D:\vk_project\lottiite animation\working with data set.json")
+        st_lottie(file,height=300,key=None)
+
+    with col2:
+        st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Data Analysis </span><span style='color: white;'>section </h1>",unsafe_allow_html=True)
+   
+    st.markdown( f"<h1 style='font-size: 40px;'><span style='color: #00BFFF;'> Select any question </span><span style='color: white;'>to get Insights </h1>",unsafe_allow_html=True)
+   
     questions = st.selectbox('Questions',
+                             
     ['1. What are the names of all the videos and their corresponding channels?',
     '2. Which channels have the most number of videos, and how many videos do they have?',
     '3. What are the top 10 most viewed videos and their respective channels?',
@@ -249,7 +451,7 @@ if selected == "View":
     '5. Which videos have the highest number of likes, and what are their corresponding channel names?',
     '6. What is the total number of likes and dislikes for each video, and what are their corresponding video names?',
     '7. What is the total number of views for each channel, and what are their corresponding channel names?',
-    '8. What are the names of all the channels that have published videos in the year 2023?',
+    '8. What are the names of all the channels that have published videos in the year 2022?',
     '9. What is the duration of top_10 videos in each channel, and what are their corresponding channel names?',
     '10. Which videos have the highest number of comments, and what are their corresponding channel names?'])
     
@@ -258,32 +460,30 @@ if selected == "View":
                             FROM video_data
                             ORDER BY channel_name""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        col1, col2 = st.columns(2)
+        # Plotting the vertical bar chart for the distribution of videos across channels using Plotly
+        videos_per_channel = df.groupby('Channel_Name')['Video_name'].count().reset_index(name='count')
 
+        col1,col2=st.columns(2)
         with col1:
-            st.write(df)
-    
+            fig = px.bar(videos_per_channel, x='Channel_Name', y='count', text='count', color='Channel_Name',
+                         title='Distribution of Videos Across Channels', labels={'Channel_Name': 'Channel Name'})
+        
+            fig.update_layout(width=800, height=600)
+            st.plotly_chart(fig)
         with col2:
+            if isinstance(df, pd.DataFrame):
+                st.dataframe(df)
 
-        # Visualize the number of videos per channel using a bar chart
-            videos_per_channel = df.groupby('Channel_Name')['Video_name'].count()
-
-
-        # Plotting the pie chart for the distribution of videos across channels
-            plt.figure(figsize=(8, 8))
-            plt.pie(videos_per_channel.values, labels=videos_per_channel.index, autopct='%1.1f%%', startangle=90, colors=plt.cm.Paired.colors)
-            plt.title('Distribution of Videos Across Channels ')
-            st.pyplot(plt)
 
     elif questions == '2. Which channels have the most number of videos, and how many videos do they have?':
         cursor.execute("""SELECT channel_name AS Channel_Name, channel_total_videos AS Total_Videos
                             FROM channel_data
-                            ORDER BY total_videos DESC""")
+                            ORDER BY total_videos DESC limit 1""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         col1,col2=st.columns(2)
 
         with col1:
-            st.write(df)
+            st.dataframe(df)
         
         #st.bar_chart(df,x= mycursor.column_names[0],y= mycursor.column_names[1])
         with col2:
@@ -301,7 +501,7 @@ if selected == "View":
                             ORDER BY views DESC
                             LIMIT 10""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
+        st.dataframe(df)
         st.write("### :white[Top 10 most viewed videos :]")
         
         # Advanced visualization using Plotly
@@ -321,7 +521,7 @@ if selected == "View":
     elif questions == '4. How many comments were made on each video, and what are their corresponding video names?':
         cursor.execute("""SELECT channel_name, video_id, title, comments FROM video_data ORDER BY comments DESC LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
+        st.dataframe(df)
 
         # Visualization using Plotly
         fig = px.bar(df,
@@ -340,7 +540,7 @@ if selected == "View":
     elif questions == '5. Which videos have the highest number of likes, and what are their corresponding channel names?':
         cursor.execute("""SELECT channel_name AS Channel_Name,title AS Title,likes AS likes FROM video_data ORDER BY likes DESC LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
+        st.dataframe(df)
         st.write("### :white[Top 10 most liked videos :]")
         fig = px.bar(df,
                      x=cursor.column_names[2],
@@ -354,7 +554,7 @@ if selected == "View":
         cursor.execute("""SELECT title AS Title, likes AS likes FROM video_data ORDER BY likes DESC;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
         
-        st.write(df)
+        st.dataframe(df)
 
         st.bar_chart(df.set_index('Title')['likes'])
 
@@ -363,7 +563,7 @@ if selected == "View":
         cursor.execute("""SELECT channel_name AS Channel_Name, channel_views AS views FROM channel_data ORDER BY channel_views DESC;""")
         
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
+        st.dataframe(df)
         st.write("### :white[Channels vs Views :]")
         fig = px.bar(df,
                      x=cursor.column_names[0],
@@ -372,12 +572,29 @@ if selected == "View":
                      color=cursor.column_names[0]
                     )
         st.plotly_chart(fig,use_container_width=True)
+
+
         
-    elif questions == '8. What are the names of all the channels that have published videos in the year 2023?':
-        cursor.execute("""SELECT title AS Channel_Name FROM video_data WHERE published_date LIKE '2023%' GROUP BY title ORDER BY title;""")
+    elif questions == '8. What are the names of all the channels that have published videos in the year 2022?':
+        cursor.execute("""SELECT title AS Channel_Name,
+                       MAX(Published_date) AS LatestVideoRelease  -- Use an aggregate function like MAX
+                       FROM video_data
+                       WHERE published_date LIKE '2022%'
+                       GROUP BY title
+                       ORDER BY title;;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
         
+        st.dataframe(df)
+        
+        fig = px.bar(df, x='Channel_Name', y='LatestVideoRelease',
+                     labels={'Channel_Name': 'Channel Name', 'LatestVideoRelease': 'Latest Video Release'},
+                     title='Channels with Latest Video Release in 2022')
+    
+        # Show the plot
+        fig.update_layout(width=1200, height=1200) 
+        st.plotly_chart(fig)
+    
+    
     elif questions == '9. What is the duration of top_10 videos in each channel, and what are their corresponding channel names?':
         cursor.execute("""SELECT v.title AS video_Name, MAX(v.duration) AS highest_duration, c.channel_name
                        FROM video_data v
@@ -386,23 +603,21 @@ if selected == "View":
                        ORDER BY highest_duration DESC
                        LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)  
 
-        plt.figure(figsize=(10, 6))
-        for channel_name, group in df.groupby('channel_name'):
-            plt.barh(group['video_Name'], group['highest_duration'], label=channel_name)
-
-            plt.xlabel('Duration')
-            plt.ylabel('Video Name')
-            plt.title('Top 10 Videos with Highest Duration in Each Channel')
-            plt.legend(title='Channel Name')
-            st.pyplot(plt)      
+        col1,col2=st.columns(2)
+        with col1:
+            st.dataframe(df)  
+        with col2:
+            fig = px.bar(df, x='highest_duration', y='video_Name', color='channel_name',
+                         labels={'highest_duration': 'Highest Duration', 'video_Name': 'Video Name'},
+                         title='Top 10 Videos with Highest Duration in Each Channel')
+            st.plotly_chart(fig)     
       
         
     elif questions == '10. Which videos have the highest number of comments, and what are their corresponding channel names?':
         cursor.execute("""SELECT title AS Channel_Name,video_id AS Video_ID,comments AS Comments FROM video_data ORDER BY comments DESC LIMIT 10;""")
         df = pd.DataFrame(cursor.fetchall(),columns=cursor.column_names)
-        st.write(df)
+        st.dataframe(df)
         st.write("### :white[Videos with most comments :]")
         fig = px.bar(df,
                      x=cursor.column_names[1],
@@ -411,3 +626,11 @@ if selected == "View":
                      color=cursor.column_names[0]
                     )
         st.plotly_chart(fig,use_container_width=True)
+
+
+if selected == "Thank You":
+    with st.container():
+        col1,col2,col3,col4,col5=st.columns(5)
+        with col3:
+            file = lottie(r"D:\vk_project\lottiite animation\thnak you.json")
+            st_lottie(file,height=500,key=None)        
