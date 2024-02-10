@@ -218,7 +218,7 @@ if selected == 'Home':
         st.write(f'<h1 style="color:#B0C4DE; font-size: 30px;">Crafted an engaging and user-friendly interface for seamless data exploration and presentation.</h1>', unsafe_allow_html=True)
 
         
-        st.markdown("[🔗 GitHub Repo >](https://github.com/vinothkumarpy/AirBnb)")    
+        st.markdown("[🔗 GitHub Repo >](https://github.com/vinothkumarpy/Youtube_project.git)")    
 
 
 
